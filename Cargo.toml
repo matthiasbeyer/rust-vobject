@@ -12,3 +12,7 @@ version = "0.3.0"
 authors = ["Markus Unterwaditzer <markus@unterwaditzer.net>",
            "Matthias Beyer <mail@beyermatthias.de>"]
 license = "MIT"
+
+[dependencies]
+error-chain = "0.10"
+

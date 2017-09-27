@@ -16,16 +16,6 @@ error_chain! {
             display("Not a VCard: '{}'", content)
         }
 
-        VersionNotFound {
-            description("Version cannot be found")
-            display("Version cannot be found")
-        }
-
-        NameNotFound {
-            description("Name cannot be found")
-            display("Name cannot be found")
-        }
-
     }
 
 

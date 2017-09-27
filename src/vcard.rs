@@ -8,6 +8,31 @@ use error::*;
 
 pub struct Vcard(Component);
 
+macro_rules! make_getter_function_for_optional {
+    ($fnname:ident, $name:expr, $mapper:ty) => {
+        pub fn $fnname(&self) -> Option<$mapper> {
+            self.0.get_only($name).cloned().map(From::from)
+        }
+    }
+}
+
+macro_rules! make_getter_function_for_values {
+    ($fnname:ident, $name:expr, $mapper:ty) => {
+        pub fn $fnname(&self) -> Vec<$mapper> {
+            self.0
+                .get_all($name)
+                .iter()
+                .map(Clone::clone)
+                .map(From::from)
+                .collect()
+        }
+    }
+}
+
+/// The Vcard object.
+///
+/// This type simply holds data and offers functions to access this data. It does not compute
+/// anything.
 impl Vcard {
 
     /// Parse a string to a Vcard object
@@ -25,158 +50,38 @@ impl Vcard {
             })
     }
 
-    pub fn adr(&self) -> Vec<Adr> {
-        unimplemented!()
-    }
-
-    pub fn anniversary(&self) -> Option<Anniversary> {
-        unimplemented!()
-    }
-
-    pub fn bday(&self) -> Option<BDay> {
-        unimplemented!()
-    }
-
-    pub fn categories(&self) -> Vec<Category> {
-        unimplemented!()
-    }
-
-    pub fn clientpidmap(&self) -> Option<ClientPidMap> {
-        unimplemented!()
-    }
-
-    pub fn email(&self) -> Vec<Email> {
-        unimplemented!()
-    }
-
-    /// The 'FN' Attribute of the Vcard.
-    ///
-    /// # Note
-    ///
-    /// The property _must_ be present due to Section 6.2.1 of RFC 6350.
-    /// Therefor, an empty vector returned can be considered an error, though we do not return a
-    /// Result here.
-    ///
-    /// # Returns
-    ///
-    /// As the cardinality of this property is 1..*, we return a Vec<String> here.
-    ///
-    pub fn fullname(&self) -> Vec<FullName> {
-        self.0
-            .get_all("FN")
-            .iter()
-            .map(Clone::clone)
-            .map(FullName::from)
-            .collect()
-    }
-
-    pub fn gender(&self) -> Option<Gender> {
-        unimplemented!()
-    }
-
-    pub fn geo(&self) -> Vec<Geo> {
-        unimplemented!()
-    }
-
-    pub fn impp(&self) -> Vec<IMPP> {
-        unimplemented!()
-    }
-
-    pub fn key(&self) -> Vec<Key> {
-        unimplemented!()
-    }
-
-    pub fn lang(&self) -> Vec<Lang> {
-        unimplemented!()
-    }
-
-    pub fn logo(&self) -> Vec<Logo> {
-        unimplemented!()
-    }
-
-    pub fn member(&self) -> Vec<Member> {
-        unimplemented!()
-    }
-
-    pub fn name(&self) -> Result<Name> {
-        self.0
-            .get_only("N")
-            .cloned()
-            .map(Name::from)
-            .ok_or(VObjectError::from_kind(VObjectErrorKind::NameNotFound))
-    }
-
-    pub fn nickname(&self) -> Vec<NickName> {
-        self.0
-            .get_all("NICKNAME")
-            .iter()
-            .map(Clone::clone)
-            .map(NickName::from)
-            .collect()
-    }
-
-    pub fn note(&self) -> Vec<Note> {
-        unimplemented!()
-    }
-
-    pub fn org(&self) -> Vec<Organization> {
-        unimplemented!()
-    }
-
-    pub fn photo(&self) -> Vec<Photo> {
-        unimplemented!()
-    }
-
-    pub fn proid(&self) -> Option<Proid> {
-        unimplemented!()
-    }
-
-    pub fn related(&self) -> Vec<Related> {
-        unimplemented!()
-    }
-
-    pub fn rev(&self) -> Option<Rev> {
-        unimplemented!()
-    }
-
-    pub fn role(&self) -> Vec<Title> {
-        unimplemented!()
-    }
-
-    pub fn sound(&self) -> Vec<Sound> {
-        unimplemented!()
-    }
-
-    pub fn tel(&self) -> Vec<Tel> {
-        unimplemented!()
-    }
-
-    pub fn title(&self) -> Vec<Title> {
-        unimplemented!()
-    }
-
-    pub fn tz(&self) -> Vec<Tz> {
-        unimplemented!()
-    }
-
-    pub fn uid(&self) -> Option<Uid> {
-        unimplemented!()
-    }
-
-    pub fn url(&self) -> Vec<Url> {
-        unimplemented!()
-    }
-
-    pub fn version(&self) -> Result<Version> {
-        self.0
-            .get_only("VERSION")
-            .map(|p| p.raw_value.clone())
-            .ok_or(VObjectError::from_kind(VObjectErrorKind::VersionNotFound))
-    }
+    make_getter_function_for_values!(adr            , "ADR"          , Adr);
+    make_getter_function_for_optional!(anniversary  , "ANNIVERSARY"  , Anniversary);
+    make_getter_function_for_optional!(bday         , "BDAY"         , BDay);
+    make_getter_function_for_values!(categories     , "CATEGORIES"   , Category);
+    make_getter_function_for_optional!(clientpidmap , "CLIENTPIDMAP" , ClientPidMap);
+    make_getter_function_for_values!(email          , "EMAIL"        , Email);
+    make_getter_function_for_values!(fullname       , "FN"           , FullName);
+    make_getter_function_for_optional!(gender       , "GENDER"       , Gender);
+    make_getter_function_for_values!(geo            , "GEO"          , Geo);
+    make_getter_function_for_values!(impp           , "IMPP"         , IMPP);
+    make_getter_function_for_values!(key            , "KEY"          , Key);
+    make_getter_function_for_values!(lang           , "LANG"         , Lang);
+    make_getter_function_for_values!(logo           , "LOGO"         , Logo);
+    make_getter_function_for_values!(member         , "MEMBER"       , Member);
+    make_getter_function_for_optional!(name         , "N"            , Name);
+    make_getter_function_for_values!(nickname       , "NICKNAME"     , NickName);
+    make_getter_function_for_values!(note           , "NOTE"         , Note);
+    make_getter_function_for_values!(org            , "ORG"          , Organization);
+    make_getter_function_for_values!(photo          , "PHOTO"        , Photo);
+    make_getter_function_for_optional!(proid        , "PRIOD"        , Proid);
+    make_getter_function_for_values!(related        , "RELATED"      , Related);
+    make_getter_function_for_optional!(rev          , "REV"          , Rev);
+    make_getter_function_for_values!(role           , "ROLE"         , Title);
+    make_getter_function_for_values!(sound          , "SOUND"        , Sound);
+    make_getter_function_for_values!(tel            , "TEL"          , Tel);
+    make_getter_function_for_values!(title          , "TITLE"        , Title);
+    make_getter_function_for_values!(tz             , "TZ"           , Tz);
+    make_getter_function_for_optional!(uid          , "UID"          , Uid);
+    make_getter_function_for_values!(url            , "URL"          , Url);
+    make_getter_function_for_optional!(version      , "VERSION"      , Version);
 
 }
-
-pub type Version = String;
 
 pub type Parameters = HashMap<String, String>;
 
@@ -227,6 +132,7 @@ create_data_type!(Title);
 create_data_type!(Tz);
 create_data_type!(Uid);
 create_data_type!(Url);
+create_data_type!(Version);
 
 /// A Name type
 ///

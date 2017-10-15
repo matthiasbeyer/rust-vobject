@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use component::Component;
 use component::parse_component;
@@ -94,7 +94,7 @@ impl Vcard {
 
 }
 
-pub type Parameters = HashMap<String, String>;
+pub type Parameters = BTreeMap<String, String>;
 
 macro_rules! create_data_type {
     ( $name:ident ) => {

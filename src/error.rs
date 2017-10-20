@@ -16,6 +16,10 @@ error_chain! {
             display("Not a VCard: '{}'", content)
         }
 
+        NotAnIcalendar(content: String) {
+            description("Input is not a valid ICalendar")
+            display("Not an Icalendar: '{}'", content)
+        }
     }
 
 

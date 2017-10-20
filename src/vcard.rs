@@ -7,7 +7,7 @@ use property::Property;
 
 use std::result::Result as RResult;
 use error::*;
-use util;
+use util::*;
 
 pub struct Vcard(Component);
 
@@ -136,8 +136,6 @@ impl Deref for Vcard {
         &self.0
     }
 }
-
-pub type Parameters = BTreeMap<String, String>;
 
 create_data_type!(Adr);
 create_data_type!(Anniversary);

@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use std::ops::Deref;
 
 use component::Component;
@@ -7,7 +6,8 @@ use property::Property;
 
 use std::result::Result as RResult;
 use error::*;
-use util::*;
+use util;
+use util::Parameters;
 
 pub struct Vcard(Component);
 

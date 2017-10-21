@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::ops::Deref;
 
 use component::Component;
 use component::parse_component;
@@ -6,6 +7,7 @@ use property::Property;
 
 use std::result::Result as RResult;
 use error::*;
+use util;
 
 pub struct Vcard(Component);
 
@@ -29,6 +31,44 @@ macro_rules! make_getter_function_for_values {
         }
     }
 }
+
+macro_rules! make_builder_fn {
+    (
+        fn $fnname:ident building $property_name:tt with_params,
+        $mapfn:expr => $( $arg_name:ident : $arg_type:ty ),*
+    ) => {
+        pub fn $fnname(mut self, params: util::Parameters, $( $arg_name : $arg_type ),*) -> Self {
+            let raw_value = vec![ $( $arg_name ),* ]
+                .into_iter()
+                .map($mapfn)
+                .collect::<Vec<_>>()
+                .join(";");
+
+            let mut prop = Property::new(String::from($property_name), raw_value);
+            prop.params = params;
+            self.0.props.entry(String::from($property_name)).or_insert(vec![]).push(prop);
+            self
+        }
+    };
+
+    (
+        fn $fnname:ident building $property_name:tt,
+        $mapfn:expr => $( $arg_name:ident : $arg_type:ty ),*
+    ) => {
+        pub fn $fnname(mut self, $( $arg_name : $arg_type ),*) -> Self {
+            let raw_value = vec![ $( $arg_name ),* ]
+                .into_iter()
+                .map($mapfn)
+                .collect::<Vec<_>>()
+                .join(";");
+
+            let prop = Property::new(String::from($property_name), raw_value);
+            self.0.props.entry(String::from($property_name)).or_insert(vec![]).push(prop);
+            self
+        }
+    }
+}
+
 
 /// The Vcard object.
 ///
@@ -92,6 +132,68 @@ impl Vcard {
     make_getter_function_for_values!(url            , "URL"          , Url);
     make_getter_function_for_optional!(version      , "VERSION"      , Version);
 
+    make_builder_fn!(fn with_adr building "ADR" with_params,
+                     |o| o.unwrap_or(String::from("")) =>
+                     pobox    : Option<String>,
+                     ext      : Option<String>,
+                     street   : Option<String>,
+                     locality : Option<String>,
+                     region   : Option<String>,
+                     code     : Option<String>,
+                     country  : Option<String>);
+
+    make_builder_fn!(fn with_anniversary  building "ANNIVERSARY"        , |o| o => value: String);
+    make_builder_fn!(fn with_bday         building "BDAY" with_params   , |o| o => value: String);
+    make_builder_fn!(fn with_categories   building "CATEGORIES"         , |o| o.join(";") => org: Vec<String>);
+    make_builder_fn!(fn with_clientpidmap building "CLIENTPIDMAP"       , |o| o => raw: String);
+    make_builder_fn!(fn with_email        building "EMAIL"              , |o| o => email: String);
+    make_builder_fn!(fn with_fullname     building "FN"                 , |o| o => fullname: String);
+    make_builder_fn!(fn with_gender       building "GENDER" with_params , |o| o => value: String);
+    make_builder_fn!(fn with_geo          building "GEO"                , |o| o => uri: String);
+    make_builder_fn!(fn with_impp         building "IMPP"               , |o| o => uri: String);
+    make_builder_fn!(fn with_key          building "KEY"                , |o| o => uri: String);
+    make_builder_fn!(fn with_lang         building "LANG"               , |o| o => lang: String);
+    make_builder_fn!(fn with_logo         building "LOGO"               , |o| o => uri: String);
+    make_builder_fn!(fn with_member       building "MEMBER"             , |o| o => uri: String);
+
+    make_builder_fn!(fn with_name building "N" with_params,
+                     |o| o.unwrap_or(String::from("")) =>
+                     surname            : Option<String>,
+                     given_name         : Option<String>,
+                     additional_name    : Option<String>,
+                     honorific_prefixes : Option<String>,
+                     honorific_suffixes : Option<String>);
+
+    make_builder_fn!(fn with_nickname building "NICKNAME" with_params , |o| o => name: String);
+    make_builder_fn!(fn with_note     building "NOTE"                 , |o| o => text: String);
+    make_builder_fn!(fn with_org      building "ORG"                  , |o| o.join(";") => org: Vec<String>);
+    make_builder_fn!(fn with_photo    building "PHOTO" with_params    , |o| o => param: String);
+    make_builder_fn!(fn with_proid    building "PRODID"               , |o| o => param: String);
+    make_builder_fn!(fn with_related  building "RELATED"              , |o| o => uri: String);
+    make_builder_fn!(fn with_rev      building "REV"                  , |o| o => timestamp: String);
+    make_builder_fn!(fn with_role     building "ROLE"                 , |o| o => role: String);
+    make_builder_fn!(fn with_sound    building "SOUND"                , |o| o => uri: String);
+    make_builder_fn!(fn with_tel      building "TEL" with_params      , |o| o => value: String);
+    make_builder_fn!(fn with_title    building "TITLE"                , |o| o => title: String);
+    make_builder_fn!(fn with_tz       building "TZ"                   , |o| o => tz: String);
+    make_builder_fn!(fn with_uid      building "UID"                  , |o| o => uri: String);
+    make_builder_fn!(fn with_url      building "URL"                  , |o| o => uri: String);
+    make_builder_fn!(fn with_version  building "VERSION"              , |o| o => version: String);
+
+}
+
+impl Default for Vcard {
+    fn default() -> Self {
+        Vcard(Component::new(String::from("VCARD")))
+    }
+}
+
+impl Deref for Vcard {
+    type Target = Component;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 pub type Parameters = BTreeMap<String, String>;
@@ -195,11 +297,13 @@ impl Name {
 
 }
 
+pub struct VcardBuilder(Component);
+
 #[cfg(test)]
 mod test {
     use super::Vcard;
 
-    #[test]
+#[test]
     fn test_vcard_basic() {
         let item = Vcard::build(
             "BEGIN:VCARD\n\
@@ -223,6 +327,52 @@ mod test {
         assert_eq!(item.name().unwrap().given_name().unwrap() , "Erika");
         assert_eq!(item.org()[0].raw() , "Wikipedia");
         assert_eq!(item.title()[0].raw() , "Oberleutnant");
+    }
+
+    #[test]
+    fn test_vcard_builder() {
+        use component::write_component;
+
+        let build = Vcard::default()
+            .with_name(parameters!(),
+                       None,
+                       Some("Mustermann".into()),
+                       None,
+                       Some("Erika".into()),
+                       None)
+            .with_fullname("Erika Mustermann".into())
+            .with_org(vec!["Wikipedia".into()])
+            .with_title("Oberleutnant".into())
+            .with_tel(parameters!("TYPE" => "WORK"), "(0221) 9999123".into())
+            .with_tel(parameters!("TYPE" => "HOME"), "(0221) 1234567".into())
+            .with_adr(parameters!("TYPE" => "HOME"),
+                      None,
+                      None,
+                      Some("Heidestrasse 17".into()),
+                      Some("Koeln".into()),
+                      None,
+                      Some("51147".into()),
+                      Some("Deutschland".into()))
+            .with_email("erika@mustermann.de".into())
+            .with_rev("20140301T221110Z".into());
+
+        let build_string = write_component(&build);
+
+        let expected =
+            "BEGIN:VCARD\r\n\
+            ADR;TYPE=HOME:\\;\\;Heidestrasse 17\\;Koeln\\;\\;51147\\;Deutschland\r\n\
+            EMAIL:erika@mustermann.de\r\n\
+            FN:Erika Mustermann\r\n\
+            N:\\;Mustermann\\;\\;Erika\\;\r\n\
+            ORG:Wikipedia\r\n\
+            REV:20140301T221110Z\r\n\
+            TEL;TYPE=WORK:(0221) 9999123\r\n\
+            TEL;TYPE=HOME:(0221) 1234567\r\n\
+            TITLE:Oberleutnant\r\n\
+            END:VCARD\r\n";
+
+
+        assert_eq!(expected, build_string);
     }
 
 }

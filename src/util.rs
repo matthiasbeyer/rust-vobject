@@ -99,3 +99,9 @@ macro_rules! make_builder_fn {
     }
 }
 
+#[cfg(feature = "timeconversions")]
+pub const DATE_TIME_FMT : &'static str = "%Y%m%dT%H%M%SZ";
+
+#[cfg(feature = "timeconversions")]
+pub const DATE_FMT      : &'static str = "%Y%m%d";
+

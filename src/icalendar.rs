@@ -6,6 +6,9 @@ use property::Property;
 use error::*;
 use util::*;
 
+#[cfg(feature = "timeconversions")]
+use chrono::NaiveDateTime;
+
 /// An Icalendar representing type
 pub struct Icalendar(Component);
 
@@ -128,4 +131,36 @@ create_data_type!(Class);
 create_data_type!(Categories);
 create_data_type!(Transp);
 create_data_type!(Rrule);
+
+#[cfg(feature = "timeconversions")]
+pub trait AsDateTime {
+    fn as_datetime(&self) -> Result<NaiveDateTime>;
+}
+
+#[cfg(feature = "timeconversions")]
+impl AsDateTime for Dtend {
+
+    fn as_datetime(&self) -> Result<NaiveDateTime> {
+        NaiveDateTime::parse_from_str(&self.0, DATE_TIME_FMT).map_err(From::from)
+    }
+
+}
+
+#[cfg(feature = "timeconversions")]
+impl AsDateTime for Dtstart {
+
+    fn as_datetime(&self) -> Result<NaiveDateTime> {
+        NaiveDateTime::parse_from_str(&self.0, DATE_TIME_FMT).map_err(From::from)
+    }
+
+}
+
+#[cfg(feature = "timeconversions")]
+impl AsDateTime for Dtstamp {
+
+    fn as_datetime(&self) -> Result<NaiveDateTime> {
+        NaiveDateTime::parse_from_str(&self.0, DATE_TIME_FMT).map_err(From::from)
+    }
+
+}
 

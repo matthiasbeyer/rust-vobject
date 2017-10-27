@@ -41,7 +41,7 @@ macro_rules! make_getter_function_for_values {
 #[macro_export]
 macro_rules! create_data_type {
     ( $name:ident ) => {
-        #[derive(Eq, PartialEq)]
+        #[derive(Eq, PartialEq, Debug)]
         pub struct $name(String, Parameters);
 
         impl $name {

@@ -186,6 +186,26 @@ mod tests {
             END:VEVENT\n\
             END:VCALENDAR\n";
 
+    const TEST_ENTRY_OC : &'static str = // Lets see how owncloud foo works here
+        "BEGIN:VCALENDAR\n\
+        VERSION:2.0\n\
+        PRODID:ownCloud Calendar\n\
+        CALSCALE:GREGORIAN\n\
+        BEGIN:VEVENT\n\
+        UID:ff411055a5\n\
+        DTSTAMP:20160128T223013Z\n\
+        CREATED:20160128T223013Z\n\
+        LAST-MODIFIED:20160128T223013Z\n\
+        SUMMARY:Amon Amarth - Jomsviking\n\
+        DTSTART;VALUE=DATE:20160325\n\
+        DTEND;VALUE=DATE:20160326\n\
+        LOCATION:\n\
+        DESCRIPTION:\n\
+        CATEGORIES:\n\
+        END:VEVENT\n\
+        END:VCALENDAR\n\
+        ";
+
     #[test]
     fn test_parse() {
         let cal = Icalendar::build(TEST_ENTRY);
@@ -219,6 +239,26 @@ mod tests {
         assert_eq!(ev.get_location().map(|e| e.raw().clone())    , Some("Somewhere".to_owned()));
         assert_eq!(ev.get_class().map(|e| e.raw().clone())       , Some("PUBLIC".to_owned()));
         assert_eq!(ev.get_categories()                           , None);
+        assert_eq!(ev.get_transp()                               , None);
+        assert_eq!(ev.get_rrule()                                , None);
+    }
+
+    #[test]
+    fn test_event_attributes_oc() {
+        let ical = Icalendar::build(TEST_ENTRY_OC).unwrap();
+        assert_eq!(ical.get_version().unwrap().raw(), "2.0");
+        assert_eq!(ical.get_prodid().unwrap().raw(), "ownCloud Calendar");
+        let ev = ical.events().next().unwrap().unwrap();
+        assert_eq!(ev.get_dtend().map(|e| e.raw().clone())       , Some("20160326".to_owned()));
+        assert_eq!(ev.get_dtstart().map(|e| e.raw().clone())     , Some("20160325".to_owned()));
+        assert_eq!(ev.get_dtstamp().map(|e| e.raw().clone())     , Some("20160128T223013Z".to_owned()));
+        assert_eq!(ev.get_uid().map(|e| e.raw().clone())         , Some("ff411055a5".to_owned()));
+        assert_eq!(ev.get_description().map(|e| e.raw().clone()) , Some("".to_owned()));
+        assert_eq!(ev.get_summary().map(|e| e.raw().clone())     , Some("Amon Amarth - Jomsviking".to_owned()));
+        assert_eq!(ev.get_url()                                  , None);
+        assert_eq!(ev.get_location().map(|e| e.raw().clone())    , Some("".to_owned()));
+        assert_eq!(ev.get_class().map(|e| e.raw().clone())       , None);
+        assert_eq!(ev.get_categories().map(|e| e.raw().clone())  , Some("".to_owned()));
         assert_eq!(ev.get_transp()                               , None);
         assert_eq!(ev.get_rrule()                                , None);
     }

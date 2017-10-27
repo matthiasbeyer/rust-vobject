@@ -263,4 +263,26 @@ mod tests {
         assert_eq!(ev.get_rrule()                                , None);
     }
 
+    #[cfg(feature = "timeconversions")]
+    #[test]
+    fn test_event_attributes_with_conversions() {
+        let ical = Icalendar::build(TEST_ENTRY).unwrap();
+        let ev = ical.events().next().unwrap().unwrap();
+        assert_eq!(ev.get_dtend().map(|e| e.as_datetime().unwrap()).unwrap()  , NaiveDateTime::parse_from_str("20060919T215900Z", DATE_TIME_FMT).unwrap());
+        assert_eq!(ev.get_dtstart().map(|e| e.as_datetime().unwrap()).unwrap(), NaiveDateTime::parse_from_str("20060910T220000Z", DATE_TIME_FMT).unwrap());
+        assert_eq!(ev.get_dtstamp().map(|e| e.as_datetime().unwrap()).unwrap(), NaiveDateTime::parse_from_str("20060812T125900Z", DATE_TIME_FMT).unwrap());
+    }
+
+    #[cfg(feature = "timeconversions")]
+    #[test]
+    fn test_event_attributes_oc_with_conversions() {
+        let ical = Icalendar::build(TEST_ENTRY_OC).unwrap();
+        assert_eq!(ical.get_version().unwrap().raw(), "2.0");
+        assert_eq!(ical.get_prodid().unwrap().raw(), "ownCloud Calendar");
+        let ev = ical.events().next().unwrap().unwrap();
+        assert_eq!(ev.get_dtend().map(|e| e.as_datetime().unwrap()).unwrap(), NaiveDateTime::parse_from_str("20160326", DATE_TIME_FMT).unwrap());
+        assert_eq!(ev.get_dtstart().map(|e| e.as_datetime().unwrap()).unwrap(), NaiveDateTime::parse_from_str("20160325", DATE_TIME_FMT).unwrap());
+        assert_eq!(ev.get_dtstamp().map(|e| e.as_datetime().unwrap()).unwrap(), NaiveDateTime::parse_from_str("20160128T223013Z", DATE_TIME_FMT).unwrap());
+    }
+
 }

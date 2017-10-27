@@ -10,6 +10,7 @@ use util::*;
 use chrono::NaiveDateTime;
 
 /// An Icalendar representing type
+#[derive(Debug)]
 pub struct Icalendar(Component);
 
 impl Icalendar {

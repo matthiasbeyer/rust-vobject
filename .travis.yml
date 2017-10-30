@@ -14,6 +14,11 @@ rust:
   - beta
   - nightly
 
+script:
+  - |
+      cargo build --features timeconversions &&
+      cargo test  --features timeconversions
+
 matrix:
   allow_failures:
     - rust: nightly

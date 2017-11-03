@@ -9,6 +9,7 @@ use error::*;
 use util;
 use util::Parameters;
 
+#[derive(Debug)]
 pub struct Vcard(Component);
 
 /// The Vcard object.

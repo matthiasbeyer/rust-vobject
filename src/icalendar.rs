@@ -190,7 +190,7 @@ impl AsDateTime for Dtstamp {
 
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "timeconversions"))]
 mod tests {
     use chrono::NaiveDate;
     use chrono::NaiveDateTime;

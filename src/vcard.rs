@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::collections::BTreeMap;
 
 use component::Component;
 use component::parse_component;
@@ -277,10 +278,10 @@ mod test {
 
         let expected =
             "BEGIN:VCARD\r\n\
-            ADR;TYPE=HOME:\\;\\;Heidestrasse 17\\;Koeln\\;\\;51147\\;Deutschland\r\n\
+            ADR;TYPE=HOME:;;Heidestrasse 17;Koeln;;51147;Deutschland\r\n\
             EMAIL:erika@mustermann.de\r\n\
             FN:Erika Mustermann\r\n\
-            N:\\;Mustermann\\;\\;Erika\\;\r\n\
+            N:;Mustermann;;Erika;\r\n\
             ORG:Wikipedia\r\n\
             REV:20140301T221110Z\r\n\
             TEL;TYPE=WORK:(0221) 9999123\r\n\

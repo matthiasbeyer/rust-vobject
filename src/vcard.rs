@@ -7,8 +7,6 @@ use property::Property;
 
 use std::result::Result as RResult;
 use error::*;
-use util;
-use util::Parameters;
 
 #[derive(Debug)]
 pub struct Vcard(Component);
@@ -29,7 +27,7 @@ impl Vcard {
             .and_then(|c| {
                 Self::from_component(c)
                     .map_err(|_| {
-                        let kind = VObjectErrorKind::NotAVCard(s.to_owned());
+                        let kind = VObjectErrorKind::NotAVCard;
                         VObjectError::from_kind(kind)
                     })
             })
@@ -221,7 +219,7 @@ pub struct VcardBuilder(Component);
 mod test {
     use super::Vcard;
 
-#[test]
+    #[test]
     fn test_vcard_basic() {
         let item = Vcard::build(
             "BEGIN:VCARD\n\

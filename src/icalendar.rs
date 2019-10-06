@@ -164,6 +164,11 @@ pub trait AsDateTime {
 }
 
 #[cfg(feature = "timeconversions")]
+pub trait FromDateTime : Sized {
+    fn from_datetime(NaiveDateTime) -> Self;
+}
+
+#[cfg(feature = "timeconversions")]
 impl AsDateTime for Dtend {
 
     fn as_datetime(&self) -> Result<Time> {
@@ -175,6 +180,13 @@ impl AsDateTime for Dtend {
         }
     }
 
+}
+
+#[cfg(feature = "timeconversions")]
+impl FromDateTime for Dtend {
+    fn from_datetime(ndt: NaiveDateTime) -> Self {
+        Dtend(ndt.format(DATE_TIME_FMT).to_string(), BTreeMap::default())
+    }
 }
 
 #[cfg(feature = "timeconversions")]
@@ -192,6 +204,13 @@ impl AsDateTime for Dtstart {
 }
 
 #[cfg(feature = "timeconversions")]
+impl FromDateTime for Dtstart {
+    fn from_datetime(ndt: NaiveDateTime) -> Self {
+        Dtstart(ndt.format(DATE_TIME_FMT).to_string(), BTreeMap::default())
+    }
+}
+
+#[cfg(feature = "timeconversions")]
 impl AsDateTime for Dtstamp {
 
     fn as_datetime(&self) -> Result<Time> {
@@ -203,6 +222,13 @@ impl AsDateTime for Dtstamp {
         }
     }
 
+}
+
+#[cfg(feature = "timeconversions")]
+impl FromDateTime for Dtstamp {
+    fn from_datetime(ndt: NaiveDateTime) -> Self {
+        Dtstamp(ndt.format(DATE_TIME_FMT).to_string(), BTreeMap::default())
+    }
 }
 
 #[derive(Clone, Debug)]
